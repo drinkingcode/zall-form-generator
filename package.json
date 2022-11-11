@@ -1,14 +1,22 @@
 {
   "name": "zall-form-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "just learn form-generator",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "null"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drinkingcode/zall-form-generator.git"
   },
   "keywords": [
     "form"
   ],
   "author": "zall | drinkingcode",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/drinkingcode/zall-form-generator/issues"
+  },
+  "homepage": "https://github.com/drinkingcode/zall-form-generator#readme"
 }
