@@ -143,4 +143,4 @@
 
 
 [form-generator]: https://github.com/JakHuang/form-generator
-[MIT]: LICENSE
+[MIT]: https://github.com/drinkingcode/zall-form-generator/blob/master/LICENSE
