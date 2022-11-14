@@ -115,7 +115,6 @@ import {
 import {
   titleCase, deepClone, isObjectObject
 } from './utils/index'
-import drawingDefalut from './components/generator/drawingDefalut'
 import DraggableItem from './DraggableItem'
 import { getIdGlobal, saveIdGlobal } from './utils/db'
 // 以下三行适配级联，通过接口获取数据
@@ -154,16 +153,16 @@ export default {
       inputComponents,
       selectComponents,
       labelWidth: 100,
-      drawingList: drawingDefalut,
+      drawingList: [],
       drawingData: {},
-      activeId: drawingDefalut[0].formId,
+      activeId: '',
       drawerVisible: false,
       formData: {},
       dialogVisible: false,
       jsonDrawerVisible: false,
       generateConf: null,
       showFileName: false,
-      activeData: drawingDefalut[0],
+      activeData: null,
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
       leftComponents: [
         {
@@ -185,7 +184,7 @@ export default {
       return this.data.type !== 'preview'
     },
     showRight() {
-      return this.data.type !== 'preview'
+      return this.data.type !== 'preview' && this.drawingList.length
     },
     isMaxComponentsCount() {
       // 控件最多50个

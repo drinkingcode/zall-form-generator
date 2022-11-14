@@ -1,6 +1,6 @@
 <script>
-import { deepClone } from '../../utils/index.js'
-import render from '../render/render.js'
+import { deepClone } from './utils/index'
+import render from './components/render/render.js'
 
 const ruleTrigger = {
   'el-input': 'blur',
@@ -63,19 +63,9 @@ function renderFrom(h) {
         rules={this[formConfCopy.formRules]}
       >
         {renderFormItem.call(this, h, formConfCopy.fields)}
-        {formConfCopy.formBtns && formBtns.call(this, h)}
       </el-form>
     </el-row>
   )
-}
-
-function formBtns(h) {
-  return <el-col>
-    <el-form-item size="large">
-      <el-button type="primary" onClick={this.submitForm}>提交</el-button>
-      <el-button onClick={this.resetForm}>重置</el-button>
-    </el-form-item>
-  </el-col>
 }
 
 function renderFormItem(h, elementList) {
