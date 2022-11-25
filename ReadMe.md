@@ -1,14 +1,25 @@
-# 简介
+## 简介
 > 为了了解自定义表单的基本实现原理，在 [form-generator] 项目基础上做了一点点改造，以满足自身的需求。
 
-# 效果展示
+## 效果展示
 - Web端效果展示
  > <img src="public/web.jpg"/>
 
 - H5效果展示
  > <img src="public/H5.jpg"/>
 
-# 基本使用
+## 配置
+> vue.config.js 新增一栏配置  
+```js
+module.exports = {
+	// 编译 zall-form-generator
+	transpileDependencies: ['zall-form-generator'], 
+}
+```
+
+  
+
+## 基本使用
 ### FormGeneratorComponent
 主要用于拖拽组件，根据自身需要设置表单基本信息
 
@@ -135,10 +146,10 @@
 > data的数据格式，同上方的data一致。
 
 
-# 参考
+## 参考
 > 在这里非常感谢 [form-generator] 项目的付出，更多自定义表单的使用细节，可参考 [form-generator] 
 
-# LICENSE
+## LICENSE
 [MIT]
 
 
