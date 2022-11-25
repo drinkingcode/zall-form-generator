@@ -1,5 +1,5 @@
 <template>
-  <div class="container" :class="{ preview: data.type === 'preview' }">
+  <div class="form-generator-container" :class="[data.type]">
     <div v-if="showLeft" class="left-board">
       <el-scrollbar class="left-scrollbar">
         <div class="components-list">
@@ -38,19 +38,19 @@
     <div class="center-board">
       <el-scrollbar class="center-scrollbar">
         <div class="center-board-row" :class="{ pt24: !formConfFlag }">
-          <div class="form-info" :class="{ mb32: formConf.formLogoUrl || formConf.formName || formConf.formRemark }">
-            <img v-if="formConf.formLogoUrl" class="form-logo" :src="config.fileBaseUrl + formConf.formLogoUrl">
+          <div class="form-info" v-show="drawingList.length > 0" :class="{ mb32: formConf.formLogoUrl || formConf.formName || formConf.formRemark }">
+            <img v-if="formConf.formLogoUrl && formConf.formLogoSwitch" class="form-logo" :src="config.fileBaseUrl + formConf.formLogoUrl">
             <div v-if="formConf.formName" class="form-name mt24 pl16 pr16">{{ formConf.formName }}</div>
-            <div v-if="formConf.formRemark" class="form-remark mt24 pl16 pr16">{{ formConf.formRemark }}</div>
+            <div v-if="formConf.formRemark && formConf.formRemarkSwitch" class="form-remark mt24 pl16 pr16">{{ formConf.formRemark }}</div>
           </div>
           <el-form
-            :class="{ h100: !drawingList.length && !formConfFlag }"
+            :class="{ h100: !drawingList.length }"
             :size="formConf.size"
             :label-position="formConf.labelPosition"
             :disabled="formConf.disabled"
             :label-width="formConf.labelWidth + 'px'"
           >
-            <draggable class="drawing-board" :list="drawingList" :animation="340" :disabled="data.type === 'preview'" group="componentsGroup">
+            <draggable class="drawing-board" draggable=".draggable" :list="drawingList" :animation="340" :disabled="data.type === 'preview'" group="componentsGroup">
               <draggable-item
                 v-for="(item, index) in drawingList"
                 :key="item.renderKey"
@@ -59,12 +59,13 @@
                 :index="index"
                 :active-id="activeId"
                 :form-conf="formConf"
+                :class="{ 'un-delete': item.unDelete }"
                 @activeItem="activeFormItem"
                 @copyItem="drawingItemCopy"
                 @deleteItem="drawingItemDelete"
               />
             </draggable>
-            <div v-show="!drawingList.length && !formConfFlag" class="empty-info">
+            <div v-show="!drawingList.length" class="empty-info">
               从左侧拖入或点选组件进行表单设计
             </div>
           </el-form>
@@ -74,7 +75,7 @@
             class="form-btn mt24 mb24 ml16"
             type="success"
             size="small"
-          >{{ formConf.submitBtnText || '提交' }}</el-button>
+          >{{ formConf.submitBtnText }}</el-button>
         </div>
       </el-scrollbar>
     </div>
@@ -87,6 +88,7 @@
       :config="config"
       @tag-change="tagChange"
       @fetch-data="fetchData"
+      v-on="$listeners"
     >
       <!-- rule: 校验规则 -->
       <template #rule="ruleProps">
@@ -162,7 +164,9 @@ export default {
       jsonDrawerVisible: false,
       generateConf: null,
       showFileName: false,
-      activeData: null,
+      activeData: {
+        '__config__': { label: '' }
+      },
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
       leftComponents: [
         {
@@ -184,14 +188,11 @@ export default {
       return this.data.type !== 'preview'
     },
     showRight() {
-      return this.data.type !== 'preview' && this.drawingList.length
+      return this.data.type !== 'preview' && this.drawingList?.length
     },
     isMaxComponentsCount() {
       // 控件最多50个
-      if (Array.isArray(this.drawingList) && this.drawingList?.length >= MAX_COMPONENTS_COUNT) {
-        return true
-      }
-      return false
+      return Array.isArray(this.drawingList) && this.drawingList?.length >= MAX_COMPONENTS_COUNT
     }
   },
   watch: {
@@ -227,7 +228,10 @@ export default {
             this.activeFormItem(this.drawingList[0])
           }
           delete val.fields
-          this.formConf = val
+          this.formConf = {
+            ...this.formConf,
+            ...val
+          }
         }
       },
       immediate: true
@@ -334,7 +338,7 @@ export default {
       config.formId = ++this.idGlobal
       config.renderKey = `${config.formId}${+new Date()}` // 改变renderKey后可以实现强制更新组件
       if (config.layout === 'colFormItem') {
-        item.__vModel__ = `field${this.idGlobal}`
+        item.__vModel__ = `field${config.renderKey}`
       } else if (config.layout === 'rowFormItem') {
         config.componentName = `row${this.idGlobal}`
         !Array.isArray(config.children) && (config.children = [])
@@ -370,6 +374,8 @@ export default {
         return
       }
       let clone = deepClone(item)
+      // 重置编辑标识位
+      clone.unDelete = false
       clone = this.createIdAndKey(clone)
       list.push(clone)
       this.activeFormItem(clone)
@@ -415,8 +421,35 @@ export default {
     },
     getParams() {
       this.AssembleFormData()
-      return this.formData
-    }
+      const params = { ...this.formData }
+      if (!params.formLogoSwitch) {
+        params['formLogoUrl'] = ''
+      }
+      if (!params.formRemarkSwitch) {
+        params['formRemark'] = ''
+      }
+      return this.formatFormConf(params)
+    },
+    // 清除 默认值
+    formatFormConf(formConf) {
+      // 清除defaultValue
+      let tempFormConf = null
+      if (formConf) {
+        tempFormConf = {
+          ...formConf,
+          fields: formConf?.fields?.map(field => {
+            return {
+              ...field,
+              __config__: {
+                ...field.__config__,
+                defaultValue: Array.isArray(field.__config__.defaultValue) ? [] : ''
+              }
+            }
+          })
+        }
+      }
+      return tempFormConf
+    },
   }
 }
 </script>
@@ -425,10 +458,26 @@ export default {
 @import './styles/home';
 </style>
 <style lang="scss" scoped>
-.container {
-  &.preview {
-    .center-board {
-      margin: 0 auto;
+.form-generator-container {
+  /deep/.center-board {
+    .drawing-board {
+      .un-delete {
+        .drawing-item-copy {
+          right: 24px;
+        }
+        .drawing-item-delete {
+          display: none;
+        }
+      }
+    }
+  }
+  /deep/.el-input {
+    .el-input__inner {
+      height: 32px !important;
+      line-height: 32px !important;
+    }
+    .el-input__icon {
+      line-height: 32px;
     }
   }
 }
@@ -478,9 +527,9 @@ export default {
       color: #26292e;
     }
     .form-remark {
-      text-align: center;
+      // text-align: center;
       word-break: break-all;
-      white-space: pre;
+      white-space: pre-wrap;
       font-size: 14px;
       color: #545860;
     }

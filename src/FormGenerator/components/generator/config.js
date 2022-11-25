@@ -1,4 +1,4 @@
-import cities from './city'
+import cities from './city.min.js'
 
 // 表单属性【右面板】
 export const formConf = {
@@ -13,8 +13,10 @@ export const formConf = {
   span: 24,
   formBtns: true,
   formLogoUrl: '',
+  formLogoSwitch: true,
   formName: '',
   formRemark: '',
+  formRemarkSwitch: true,
   submitBtnText: '提交'
 }
 
@@ -49,7 +51,7 @@ export const inputComponents = [
     clearable: true,
     'prefix-icon': '',
     'suffix-icon': '',
-    maxlength: null,
+    maxlength: 100,
     'show-word-limit': false,
     readonly: false,
     disabled: false
@@ -77,7 +79,7 @@ export const inputComponents = [
       maxRows: 4
     },
     style: { width: '100%' },
-    maxlength: null,
+    maxlength: 1000,
     'show-word-limit': false,
     readonly: false,
     disabled: false
@@ -141,7 +143,7 @@ export const selectComponents = [
       props: {
         multiple: false,
         label: 'name',
-        value: 'id',
+        value: 'name', // 方便转化
         children: 'children'
       }
     },
@@ -164,21 +166,35 @@ export const selectComponents = [
       span: 24,
       optionType: 'default',
       regList: [],
-      tagList: [], // 标签关联
+      tagList: [{ // 跟选项联动
+        cname: '',
+        tagId: '',
+        tagValues: [],
+        value: '',
+        valueIndex: ''
+      }, {
+        cname: '',
+        tagId: '',
+        tagValues: [],
+        value: '',
+        valueIndex: ''
+      }], // 标签关联
       required: true,
       border: false,
       document: 'https://element.eleme.cn/#/zh-CN/component/radio'
     },
     __slot__: {
       options: [{
-        label: '选项一',
+        title: '选项一',
+        label: 1,
         value: 1
       }, {
-        label: '选项二',
+        title: '选项二',
+        label: 2,
         value: 2
       }]
     },
-    style: {},
+    style: { width: '100%' },
     size: 'medium',
     disabled: false
   },
@@ -195,24 +211,38 @@ export const selectComponents = [
       optionType: 'default',
       required: true,
       regList: [],
-      tagList: [], // 标签关联
+      tagList: [{ // 跟选项联动
+        cname: '',
+        tagId: '',
+        tagValues: [],
+        value: '',
+        valueIndex: ''
+      }, {
+        cname: '',
+        tagId: '',
+        tagValues: [],
+        value: '',
+        valueIndex: ''
+      }], // 标签关联
       changeTag: true,
       border: false,
       document: 'https://element.eleme.cn/#/zh-CN/component/checkbox'
     },
     __slot__: {
       options: [{
-        label: '选项一',
+        title: '选项一',
+        label: 1,
         value: 1
       }, {
-        label: '选项二',
+        title: '选项二',
+        label: 2,
         value: 2
       }]
     },
-    style: {},
+    style: { width: '100%' },
     size: 'medium',
-    min: null,
-    max: null,
+    min: 1,
+    max: 2,
     disabled: false
   },
   {
@@ -226,16 +256,30 @@ export const selectComponents = [
       span: 24,
       required: true,
       regList: [],
-      tagList: [], // 标签关联
+      tagList: [{ // 跟选项联动
+        cname: '',
+        tagId: '',
+        tagValues: [],
+        value: '',
+        valueIndex: ''
+      }, {
+        cname: '',
+        tagId: '',
+        tagValues: [],
+        value: '',
+        valueIndex: ''
+      }], // 标签关联
       changeTag: true,
       document: 'https://element.eleme.cn/#/zh-CN/component/select'
     },
     __slot__: {
       options: [{
-        label: '选项一',
+        title: '选项一',
+        label: 1,
         value: 1
       }, {
-        label: '选项二',
+        title: '选项二',
+        label: 2,
         value: 2
       }]
     },
@@ -247,3 +291,6 @@ export const selectComponents = [
     multiple: false
   }
 ]
+
+// 中文数组
+export const changeNumber = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十']

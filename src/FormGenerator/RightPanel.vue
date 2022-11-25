@@ -10,13 +10,13 @@
     <div class="field-box">
       <el-scrollbar class="right-scrollbar">
         <!-- 组件属性 -->
-        <el-form v-show="currentTab==='field' && showField" size="small" label-width="90px">
+        <el-form v-show="currentTab==='field' && showField && activeData" size="small" label-width="90px">
           <el-divider>基础设置</el-divider>
-          <el-form-item v-if="activeData.__config__.label!==undefined" label="标题">
-            <el-input v-model="activeData.__config__.label" placeholder="请输入标题" @input="changeRenderKey" />
+          <el-form-item v-if="activeData.__config__.label!==undefined" label="标题" required>
+            <el-input v-model="activeData.__config__.label" :maxlength="10" placeholder="请输入标题" @input="changeRenderKey" />
           </el-form-item>
           <el-form-item v-if="activeData.placeholder!==undefined" label="占位提示">
-            <el-input v-model="activeData.placeholder" placeholder="请输入占位提示" @input="changeRenderKey" />
+            <el-input v-model="activeData.placeholder" :maxlength="20" placeholder="请输入占位提示" @input="changeRenderKey" />
           </el-form-item>
           <el-form-item v-if="activeData.__config__.required !== undefined" label="是否必填">
             <el-switch v-model="activeData.__config__.required" />
@@ -24,46 +24,55 @@
           <el-form-item v-if="activeData.__config__.tag==='el-checkbox-group'" label="至少应选">
             <el-input-number
               :value="activeData.min"
-              :min="0"
+              :min="1"
+              :max="activeData.__config__.tagList.length"
               placeholder="至少应选"
+              :disabled="true"
               @input="$set(activeData, 'min', $event?$event:undefined)"
             />
           </el-form-item>
           <el-form-item v-if="activeData.__config__.tag==='el-checkbox-group'" label="最多可选">
             <el-input-number
               :value="activeData.max"
-              :min="0"
+              :min="1"
+              :max="activeData.__config__.tagList.length"
               placeholder="最多可选"
               @input="$set(activeData, 'max', $event?$event:undefined)"
             />
           </el-form-item>
           <template v-if="['el-checkbox-group', 'el-radio-group', 'el-select'].indexOf(activeData.__config__.tag) > -1">
-            <el-divider>选项</el-divider>
-            <draggable
-              :list="activeData.__slot__.options"
-              :animation="340"
-              group="selectItem"
-              handle=".option-drag"
-            >
-              <div v-for="(item, index) in activeData.__slot__.options" :key="index" class="select-item">
-                <div class="select-line-icon option-drag">
-                  <i class="el-icon-s-operation" />
+            <div class="options-wrapper">
+              <el-divider>选项</el-divider>
+              <draggable
+                :list="activeData.__slot__.options"
+                :animation="340"
+                group="selectItem"
+                handle=".option-drag"
+              >
+                <div v-for="(item, index) in activeData.__slot__.options" :key="index" class="select-item">
+                  <div class="select-line-icon option-drag">
+                    <i class="el-icon-s-operation" />
+                  </div>
+                  <!-- 鉴于产品和测试提的优化点，予以优化 -->
+                  <el-input v-model="item.title" placeholder="选项名" size="small" maxlength="20" />
+                  <el-input
+                    placeholder="选项值"
+                    size="small"
+                    maxlength="20"
+                    :value="item.value"
+                    @input="setOptionValue(item, $event)"
+                  />
+                  <div class="close-btn select-line-icon" @click="deleteSelectItem(index)">
+                    <i class="el-icon-remove-outline" />
+                  </div>
                 </div>
-                <el-input v-model="item.label" placeholder="选项名" size="small" />
-                <el-input
-                  placeholder="选项值"
-                  size="small"
-                  :value="item.value"
-                  @input="setOptionValue(item, $event)"
-                />
-                <div class="close-btn select-line-icon" @click="activeData.__slot__.options.splice(index, 1)">
-                  <i class="el-icon-remove-outline" />
-                </div>
+              </draggable>
+              <div v-if="activeData.__slot__.options.length < 10" class="add-btn pointer" @click="addSelectItem">
+                <svg-icon icon-class="analysis-add-event" />
+                <span>选项</span>
               </div>
-            </draggable>
-            <div class="add-btn pointer" @click="addSelectItem">
-              <svg-icon icon-class="analysis-add-event" />
-              <span>选项</span>
+              <!-- 编辑组件时，不可修改选项 -->
+              <div v-show="activeData.unDelete" class="options-wrapper--disabled" />
             </div>
           </template>
           <!-- 添加规则 -->
@@ -132,8 +141,8 @@
         <!-- 表单属性 -->
         <el-form v-show="currentTab === 'form'" ref="formRef" size="small" label-width="90px" label-position="top">
           <el-form-item label="头图" class="upload-item">
-            <el-switch v-model="formLogoFlag" />
-            <template v-if="formLogoFlag">
+            <!-- <el-switch v-model="formConf.formLogoSwitch" /> -->
+            <template v-if="formConf.formLogoSwitch">
               <el-upload
                 :action="config.fileAction"
                 :headers="config.fileHeaders"
@@ -155,16 +164,16 @@
                   <span>从本地添加图片</span>
                 </div>
               </el-upload>
-              <div class="upload-tip">（建议上传比例为375*235px，切小于2M图）</div>
+              <div class="upload-tip">（建议上传比例为375*235px，且小于2M图）</div>
             </template>
           </el-form-item>
-          <el-form-item label="表单名称">
-            <el-input v-model.trim="formConf.formName" placeholder="请输入表单名称" />
+          <el-form-item label="表单名称" required>
+            <el-input v-model.trim="formConf.formName" :maxlength="20" show-word-limit placeholder="请输入表单名称" />
           </el-form-item>
           <el-form-item label="表单说明" class="upload-item">
-            <el-switch v-model="formRemarkFlag" @change="setFormConf('formRemark', '')" />
+            <el-switch v-model="formConf.formRemarkSwitch" />
             <el-input
-              v-if="formRemarkFlag"
+              v-if="formConf.formRemarkSwitch"
               v-model="formConf.formRemark"
               maxlength="500"
               show-word-limit
@@ -172,8 +181,8 @@
               placeholder="请输入表单说明"
             />
           </el-form-item>
-          <el-form-item label="按钮文案">
-            <el-input v-model.trim="formConf.submitBtnText" placeholder="请输入按钮文案" />
+          <el-form-item label="按钮文案" required>
+            <el-input v-model.trim="formConf.submitBtnText" :maxlength="10" show-word-limit placeholder="请输入按钮文案" />
           </el-form-item>
           <!--          <el-form-item label="表单名">
             <el-input v-model="formConf.formRef" placeholder="请输入表单名（ref）" />
@@ -237,6 +246,7 @@
 <script>
 import { isNumberStr } from './utils/index'
 import draggable from 'vuedraggable'
+import { changeNumber } from './components/generator/config'
 
 // 使changeRenderKey在目标组件改变时可用
 const needRerenderList = ['tinymce']
@@ -250,9 +260,7 @@ export default {
   props: ['showField', 'activeData', 'formConf', 'config'],
   data() {
     return {
-      currentTab: 'field',
-      formLogoFlag: true,
-      formRemarkFlag: true
+      currentTab: 'field'
     }
   },
   computed: {
@@ -262,18 +270,33 @@ export default {
   },
   watch: {},
   created() {
+    console.log('formConf', this.formConf, this.activeData)
     // this.init()
   },
   methods: {
     addSelectItem() {
       // eslint-disable-next-line vue/no-mutating-props
+      const len = this.activeData.__slot__.options.length
       this.activeData.__slot__.options.push({
-        label: '',
-        value: ''
+        title: `选项${changeNumber[len]}`,
+        label: len + 1,
+        value: len + 1
       })
+      // eslint-disable-next-line vue/no-mutating-props
+      if (this.activeData.__config__.tag === 'el-checkbox-group') this.activeData.max = this.activeData.__slot__.options.length
+      this.$listeners.onOptionsChange(this.activeData, 'ADD', this.activeData.__slot__.options.length - 1)
+    },
+    deleteSelectItem(index) {
+      // eslint-disable-next-line vue/no-mutating-props
+      this.activeData.__slot__.options.splice(index, 1)
+      // eslint-disable-next-line vue/no-mutating-props
+      if (this.activeData.__config__.tag === 'el-checkbox-group') this.activeData.max = this.activeData.__slot__.options.length
+      this.$listeners.onOptionsChange(this.activeData, 'DELETE', index)
     },
     setOptionValue(item, val) {
-      item.value = isNumberStr(val) ? +val : val
+      // item.value = isNumberStr(val) ? +val : val
+      item.value = val
+      item.label = item.value
     },
     changeRenderKey() {
       if (needRerenderList.includes(this.activeData.__config__.tag)) {
@@ -414,6 +437,17 @@ export default {
     .right-scrollbar {
       height: calc(100vh - 181px);
       overflow-y: auto;
+    }
+    .options-wrapper {
+      position: relative;
+      .options-wrapper--disabled {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        cursor: not-allowed;
+      }
     }
   }
   .el-scrollbar {
