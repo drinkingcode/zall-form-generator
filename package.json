@@ -1,6 +1,6 @@
 {
   "name": "zall-form-generator",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "just learn form-generator",
   "main": "src/index.js",
   "scripts": {
@@ -15,6 +15,9 @@
   ],
   "author": "zall | drinkingcode",
   "license": "MIT",
+  "dependencies": {
+    "vuedraggable": "2.24.3"
+  },
   "bugs": {
     "url": "https://github.com/drinkingcode/zall-form-generator/issues"
   },
