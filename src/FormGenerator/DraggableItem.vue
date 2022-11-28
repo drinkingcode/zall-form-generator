@@ -29,11 +29,17 @@ const layouts = {
     if (this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered'
     let labelWidth = config.labelWidth ? `${config.labelWidth}px` : null
     if (config.showLabel === false) labelWidth = '0'
+    // label样式
+    let labelClassName = 'custom-form-item-label'
+    if(config.required) labelClassName += ' is-required'
     return (
       <el-col span={config.span} class={className}
         nativeOnClick={event => { activeItem(currentItem); event.stopPropagation() }}>
-        <el-form-item label-width={labelWidth}
-          label={config.showLabel ? config.label : ''} required={config.required}>
+        <el-form-item label-width={labelWidth}>
+          <div class={labelClassName}>
+            <span class="custom-form-item-label--title">{config.showLabel ? config.label : ''}</span>
+            <span class="custom-form-item-label--tips">{config.showTips ? config.tips : ''}</span>
+          </div>
           <render key={config.renderKey} conf={currentItem} onInput={ event => {
             this.$set(config, 'defaultValue', event)
           }}>

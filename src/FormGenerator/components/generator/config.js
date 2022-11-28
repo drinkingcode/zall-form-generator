@@ -210,6 +210,8 @@ export const selectComponents = [
       layout: 'colFormItem',
       optionType: 'default',
       required: true,
+      showTips: true,
+      tips:`(最多选择2项)`,
       regList: [],
       tagList: [{ // 跟选项联动
         cname: '',
