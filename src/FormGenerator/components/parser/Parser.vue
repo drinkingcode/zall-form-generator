@@ -21,10 +21,16 @@ const layouts = {
 
     let labelWidth = config.labelWidth ? `${config.labelWidth}px` : null
     if (config.showLabel === false) labelWidth = '0'
+    // label样式
+    let labelClassName = 'custom-form-item-label'
+    if(config.required) labelClassName += ' is-required'
     return (
       <el-col span={config.span}>
-        <el-form-item label-width={labelWidth} prop={scheme.__vModel__}
-          label={config.showLabel ? config.label : ''}>
+        <el-form-item label-width={labelWidth} prop={scheme.__vModel__}>
+          <div class={labelClassName}>
+            <span class="custom-form-item-label--title">{config.showLabel ? config.label : ''}</span>
+            <span class="custom-form-item-label--tips">{config.showTips ? config.tips : ''}</span>
+          </div>
           <render conf={scheme} on={listeners} />
         </el-form-item>
       </el-col>
