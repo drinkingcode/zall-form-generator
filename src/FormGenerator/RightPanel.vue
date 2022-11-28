@@ -268,7 +268,11 @@ export default {
       return this.activeData.__config__.tag
     }
   },
-  watch: {},
+  watch: {
+    'activeData.max': function(val,oldVal){
+      this.activeData.__config__.tips = `(最多选择${val}项)`
+    }
+  },
   created() {
     console.log('formConf', this.formConf, this.activeData)
     // this.init()
