@@ -498,7 +498,7 @@ export default {
     display: flex;
     align-items: center;
     .el-scrollbar__view {
-      height: 656px;
+      height: 100%;
       overflow-y: auto;
       overflow-x: hidden;
       background-color: #FFFFFF;
