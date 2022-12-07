@@ -75,6 +75,17 @@ $lighterBlue: #409EFF;
     width: auto;
     margin: 0 350px 0 260px;
     box-sizing: border-box;
+
+    .el-form .el-form-item {
+      .el-radio-group .el-radio {
+        display: block;
+        line-height: 26px;
+      }
+      .el-checkbox-group .el-checkbox {
+        display: block;
+      }
+    }
+    
   }
   .empty-info{
     position: absolute;
