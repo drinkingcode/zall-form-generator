@@ -83,6 +83,16 @@ $lighterBlue: #409EFF;
       }
       .el-checkbox-group .el-checkbox {
         display: block;
+        .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner {
+          border-color: #00a39b;
+          background-color: #fff;
+          &::after {
+            border-color: #00a39b;
+          }
+        }
+        .el-checkbox__input.is-disabled + span.el-checkbox__label {
+          color: #26292e;
+        }
       }
     }
     
